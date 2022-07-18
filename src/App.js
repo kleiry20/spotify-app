@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import "./App.css";
 import Header from "./Components/Header";
 import Register from "./Components/Register";
-import {Home} from "./Components/Home";
 import {ListingScreen} from "./Components/ListingScreen";
 import {AddSong} from "./Components/AddSong";
 import {AddArtist} from "./Components/AddArtist";
@@ -34,7 +33,8 @@ const App = () => (
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
         <Route path="/register" element={<Register />} />
-        <Route path="/listingScreen" element={<ListingScreen />} />
+        <Route path="/listing-screen" element={<ListingScreen />} />
+        <Route path="/add-song" element={<AddSong />} />
         <Route path="/artist" element={<AddArtist />} />
       </Routes>
     </Suspense>
