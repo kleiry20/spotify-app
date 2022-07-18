@@ -1,49 +1,44 @@
-import React, { Component }  from 'react';
+// import React, { Component }  from 'react';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import "./App.css";
 import Header from "./Components/Header";
+import Register from "./Components/Register";
+import {Home} from "./Components/Home";
 import {ListingScreen} from "./Components/ListingScreen";
 import {AddSong} from "./Components/AddSong";
 import {AddArtist} from "./Components/AddArtist";
 import {Footer} from "./Components/Footer";
 
 
-function App() {
-  let songs = [
-    {
-      sno:1,
-      artwork:"cover image",
-      song:"Someone you loved",
-      date_of_release:"date",
-      artists:"Lewis Capaldi",
-      rating:"stars"
-    },
-    {
-      sno:2,
-      artwork:"cover image",
-      song:"Circles",
-      date_of_release:"date",
-      artists:"Post Malone",
-      rating:"stars"
-    },
-    {
-      sno:3,
-      artwork:"cover image",
-      song:"Intentions",
-      date_of_release:"date",
-      artists:"Justin Bieber, Quavo",
-      rating:"stars"
-    }
-  ];
+// function App() {
+//   
 
-  return (
-    <>
-      <Header title="Spotify!" searchBar={false}/>
-      <ListingScreen songs={songs}/>
-      <AddSong/>
-      <AddArtist/>
-      <Footer/>
-    </>
-  );
-}
+//   return (
+//     <>
+//       <Header title="Spotify!" searchBar={false}/>
+//       <Register />
+//       <ListingScreen songs={songs}/>
+//       <AddSong/>
+//       <AddArtist/>
+//       <Footer/>
+//     </>
+//   );
+// }
+
+// const Home = lazy(() => import('./routes/Home'));
+// const About = lazy(() => import('./routes/About'));
+
+const App = () => (
+  <Router>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/listingScreen" element={<ListingScreen />} />
+        <Route path="/artist" element={<AddArtist />} />
+      </Routes>
+    </Suspense>
+  </Router>
+);
 
 export default App;
