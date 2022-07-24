@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 // import {TopSongs} from "./TopSongs";
-import Button from 'react-bootstrap/Button';
+import Image from 'react-bootstrap/Image'
 import Table from "react-bootstrap/Table";
 import Header from "./Header";
 import { Link } from 'react-router-dom';
@@ -8,6 +8,7 @@ import axios from 'axios'
 import { Rating } from 'react-simple-star-rating'
 
 export const ListingScreen = (props) => {
+
   const user_id = localStorage.getItem('user_id');
   const [songs, setSongs] = useState([])
   const [artists, setArtists] = useState([])
@@ -25,7 +26,7 @@ export const ListingScreen = (props) => {
     rating.app_user = user_id
     rating.song = song.id
     axios.post(
-    'http://127.0.0.1:8000/ratings/create/', rating)
+      process.env.REACT_APP_API_URL + 'ratings/create/', rating)
     .then(res => {
       alert('success');
     })
@@ -43,7 +44,7 @@ export const ListingScreen = (props) => {
     console.log(rating, "rating")
 
     axios.put(
-    'http://127.0.0.1:8000/ratings/update/'+rating.id+'/', rating)
+      process.env.REACT_APP_API_URL + 'ratings/update/'+rating.id+'/', rating)
     .then(res => {
       alert('success');
     })
@@ -51,7 +52,7 @@ export const ListingScreen = (props) => {
   }
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/songs/list/')
+    axios.get(process.env.REACT_APP_API_URL + 'songs/list/')
     .then(response => {
       console.log(response.data);
       setSongs(response.data);
@@ -59,7 +60,7 @@ export const ListingScreen = (props) => {
   }, []);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/artists/list/')
+    axios.get(process.env.REACT_APP_API_URL + 'artists/list/')
     .then(response => {
       console.log(response.data);
       setArtists(response.data);
@@ -71,7 +72,6 @@ export const ListingScreen = (props) => {
   // }
 
   function RenderRating({ song }) {
-    console.log(song, "assasa")
 
     const [rating, setRating] = useState('')
 
@@ -92,8 +92,6 @@ export const ListingScreen = (props) => {
   
       getRating(song.id);
     },[]);
-
-    console.log("================================", rating)
   
     return rating;
   }
@@ -109,7 +107,7 @@ export const ListingScreen = (props) => {
         <Table striped bordered hover className="my-4">
           <thead>
             <tr>
-              <th>Serial Number</th>
+              <th>Artwork</th>
               <th>Song</th>
               <th>Artist</th>
               <th>Average Rating</th>
@@ -125,7 +123,7 @@ export const ListingScreen = (props) => {
             else if (song.avg_rating == 4) avg_rat = 80
             else if (song.avg_rating == 5) avg_rat = 100
             return <tr>
-            <td>{index+1}</td>
+            <td style={{width: '300px'}}> <Image src={'http://127.0.0.1:8000'+song.image} thumbnail='true' /></td>
             <td>{song.name}</td>
             <td>{song.artist}</td>
             <td><Rating ratingValue={avg_rat} /* Available Props */ /></td>

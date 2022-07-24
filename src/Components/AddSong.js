@@ -30,12 +30,26 @@ export const AddSong = () => {
     song[e.target.name] = e.target.value;
   }
 
+  const handleImageChange = (e) => {
+    song[e.target.name] = e.target.files[0]
+  };
+
 
   const handleSubmitSong = (e) => {
     e.preventDefault();
-    console.log('You have submitted', userName, song);
+    let form_data = new FormData();
+    form_data.append('image', song.image, song.image.name);
+    form_data.append('name', song.name);
+    form_data.append('date_of_release', song.date_of_release);
+    form_data.append('artist', parseInt(song.artist));
+    form_data.append('avg_rating', song.avg_rating);
+
     axios.post(
-    'http://127.0.0.1:8000/songs/create/', song )
+      process.env.REACT_APP_API_URL + 'songs/create/', form_data, {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    })
     .then(res => {
       alert('success');
     })
@@ -51,7 +65,7 @@ export const AddSong = () => {
     e.preventDefault();
     console.log('You have submitted', userName, artist);
     axios.post(
-    'http://127.0.0.1:8000/artists/create/', artist )
+      process.env.REACT_APP_API_URL + 'artists/create/', artist )
     .then(res => {
       alert('success');
       setShow(false);
@@ -61,7 +75,7 @@ export const AddSong = () => {
 
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/artists/list/')
+    axios.get(process.env.REACT_APP_API_URL + 'artists/list/')
     .then(response => {
       console.log(response.data);
       setArtists(response.data);
@@ -73,7 +87,7 @@ export const AddSong = () => {
       <Header title="Spotify!" />
       <div className="container">
         <h3 className="my-3">Add Songs here</h3>
-        <Form className="my-5" onSubmit={handleSubmitSong} >
+        <Form className="my-5" onSubmit={handleSubmitSong}>
           <Form.Group as={Row} className="mb-3" controlId="formSongName">
             <Form.Label column sm="2">
               Song Name
@@ -108,7 +122,27 @@ export const AddSong = () => {
               <Button variant="outline-secondary" onClick={handleShow}>
                 Add Artist here
               </Button>
-              <Modal show={show} onHide={handleClose}>
+            </Col>
+          </Form.Group>
+
+          <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
+            <Form.Label column sm="2">
+              Cover Image
+            </Form.Label>
+            <Col sm="10">
+              <Form.Control type="file" name='image' onChange={handleImageChange} />
+            </Col>
+          </Form.Group>
+
+          <Col sm="12" className="text-center">
+            <Button variant="secondary" type="submit" className="my-3">
+              Cancel
+            </Button>
+            <Button variant="success" type="submit" className="my-3 mx-2" onClick = {handleSubmitSong}>
+              Submit
+            </Button>
+          </Col>
+          <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
                   <Modal.Title>Add Artist</Modal.Title>
                 </Modal.Header>
@@ -157,26 +191,6 @@ export const AddSong = () => {
                   </Button>
                 </Modal.Footer>
               </Modal>
-            </Col>
-          </Form.Group>
-
-          {/* <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
-            <Form.Label column sm="2">
-              Cover Image
-            </Form.Label>
-            <Col sm="10">
-              <Form.Control type="file" />
-            </Col>
-          </Form.Group> */}
-
-          <Col sm="12" className="text-center">
-            <Button variant="secondary" type="submit" className="my-3">
-              Cancel
-            </Button>
-            <Button variant="success" type="submit" className="my-3 mx-2" onClick = {handleSubmitSong}>
-              Submit
-            </Button>
-          </Col>
         </Form>
       </div>
     </>
