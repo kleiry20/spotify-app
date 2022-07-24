@@ -26,7 +26,7 @@ export default function Register() {
     e.preventDefault();
     console.log('You have submitted', userName, process.env.API_URL);
     axios.post(
-    'http://127.0.0.1:8000/users/create/', { name: userName })
+      process.env.REACT_APP_API_URL + 'users/create/', { name: userName })
     .then(res => {
       localStorage.setItem('user_id', res.data.id);
       localStorage.setItem('username', res.data.name);
