@@ -52,6 +52,7 @@ export const AddSong = () => {
     })
     .then(res => {
       alert('success');
+      navigate('/home')
     })
   }
 
