@@ -1,61 +1,135 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 // import {TopSongs} from "./TopSongs";
 import Button from 'react-bootstrap/Button';
 import Table from "react-bootstrap/Table";
 import Header from "./Header";
 import { Link } from 'react-router-dom';
+import axios from 'axios'
+import { Rating } from 'react-simple-star-rating'
 
 export const ListingScreen = (props) => {
-  let songs = [
-    {
-      sno: 1,
-      artwork: "cover image",
-      song: "Someone you loved",
-      date_of_release: "date",
-      artists: "Lewis Capaldi",
-      rating: "stars",
-    },
-    {
-      sno: 2,
-      artwork: "cover image",
-      song: "Circles",
-      date_of_release: "date",
-      artists: "Post Malone",
-      rating: "stars",
-    },
-    {
-      sno: 3,
-      artwork: "cover image",
-      song: "Intentions",
-      date_of_release: "date",
-      artists: "Justin Bieber, Quavo",
-      rating: "stars",
-    },
-  ];
+  const user_id = localStorage.getItem('user_id');
+  const [songs, setSongs] = useState([])
+  const [artists, setArtists] = useState([])
+
+  const [rating, setRating] = useState({})
+
+  const handleRating = (rate, song) => {
+
+    if (rate == 20) rating.rating = 1 
+    else if (rate == 40) rating.rating = 2
+    else if (rate == 60) rating.rating = 3
+    else if (rate == 80) rating.rating = 4
+    else if (rate == 100) rating.rating = 5
+
+    rating.app_user = user_id
+    rating.song = song.id
+    axios.post(
+    'http://127.0.0.1:8000/ratings/create/', rating)
+    .then(res => {
+      alert('success');
+    })
+    // other logic
+  }
+
+  const updateRating = (rate, song, rating) => {
+
+    if (rate == 20) rating.rating = 1 
+    else if (rate == 40) rating.rating = 2
+    else if (rate == 60) rating.rating = 3
+    else if (rate == 80) rating.rating = 4
+    else if (rate == 100) rating.rating = 5
+
+    console.log(rating, "rating")
+
+    axios.put(
+    'http://127.0.0.1:8000/ratings/update/'+rating.id+'/', rating)
+    .then(res => {
+      alert('success');
+    })
+    // other logic
+  }
+
+  useEffect(() => {
+    axios.get('http://127.0.0.1:8000/songs/list/')
+    .then(response => {
+      console.log(response.data);
+      setSongs(response.data);
+    })
+  }, []);
+
+  useEffect(() => {
+    axios.get('http://127.0.0.1:8000/artists/list/')
+    .then(response => {
+      console.log(response.data);
+      setArtists(response.data);
+    })
+  }, []);
+
+  // function RenderRating(props) {
+  //   const song = props.song
+  // }
+
+  function RenderRating({ song }) {
+    console.log(song, "assasa")
+
+    const [rating, setRating] = useState('')
+
+    useEffect(() => {
+      function getRating(id) {
+        axios.get('http://127.0.0.1:8000/ratings/fetch/'+user_id+'/'+id+'/')
+        .then(response => {
+          if (response.data.rating == 1) response.data.rating = 20 
+          else if (response.data.rating == 2) response.data.rating = 40
+          else if (response.data.rating == 3) response.data.rating = 60
+          else if (response.data.rating == 4) response.data.rating = 80
+          else if (response.data.rating == 5) response.data.rating = 100
+          setRating(<Rating onClick={ (e) => updateRating(e, song, response.data) } ratingValue={response.data.rating} /* Available Props */ />); 
+        }).catch((error) => {
+          setRating(<Rating onClick={(e) => handleRating(e, song)} ratingValue={0} /* Available Props */ />); 
+        })
+      }
+  
+      getRating(song.id);
+    },[]);
+
+    console.log("================================", rating)
+  
+    return rating;
+  }
+
+  
+
   return (
     <>
       <Header title="Spotify!"></Header>
       <div className="container">
         <h3>Top 10 Songs</h3>
-        <Button variant="primary" type="submit" >
         <Link to="/add-song">Add Song</Link>
-      </Button>
         <Table striped bordered hover className="my-4">
           <thead>
             <tr>
               <th>Serial Number</th>
               <th>Song</th>
               <th>Artist</th>
-              <th>Rating</th>
+              <th>Average Rating</th>
+              <th>Your Rating</th>
             </tr>
           </thead>
           <tbody>
-          {songs.map((song) => {
+          {songs.map((song, index) => {
+            let avg_rat = 0
+            if (song.avg_rating == 1) avg_rat = 20 
+            else if (song.avg_rating == 2) avg_rat = 40
+            else if (song.avg_rating == 3) avg_rat = 60
+            else if (song.avg_rating == 4) avg_rat = 80
+            else if (song.avg_rating == 5) avg_rat = 100
             return <tr>
-            <td>{song.sno}</td>
-            <td>{song.song}</td>
-            <td>{song.artists}</td>
-            <td>{song.rating}</td>
+            <td>{index+1}</td>
+            <td>{song.name}</td>
+            <td>{song.artist}</td>
+            <td><Rating ratingValue={avg_rat} /* Available Props */ /></td>
+            <td> <RenderRating song={song} />  </td>
           </tr>;
           })}
           </tbody>
@@ -68,15 +142,15 @@ export const ListingScreen = (props) => {
             <tr>
               <th>Arist</th>
               <th>Date of Birth</th>
-              <th>SOngs</th>
+              <th>Bio</th>
             </tr>
           </thead>
           <tbody>
-          {songs.map((song) => {
+          {artists.map((artist) => {
             return <tr>
-            <td>{song.song}</td>
-            <td>{song.artists}</td>
-            <td>{song.rating}</td>
+            <td>{artist.artist_name}</td>
+            <td>{artist.artist_dob}</td>
+            <td>{artist.artist_bio}</td>
           </tr>;
           })}
           </tbody>

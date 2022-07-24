@@ -9,6 +9,8 @@ import {AddSong} from "./Components/AddSong";
 import {AddArtist} from "./Components/AddArtist";
 import {Footer} from "./Components/Footer";
 
+require('dotenv').config()
+
 
 // function App() {
 //   
@@ -32,8 +34,8 @@ const App = () => (
   <Router>
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
-        <Route path="/register" element={<Register />} />
-        <Route path="/listing-screen" element={<ListingScreen />} />
+        <Route path="/" element={<Register />} />
+        <Route path="/home" element={<ListingScreen />} />
         <Route path="/add-song" element={<AddSong />} />
         <Route path="/artist" element={<AddArtist />} />
       </Routes>

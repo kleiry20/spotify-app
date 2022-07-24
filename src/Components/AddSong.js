@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -8,23 +8,78 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 
 import Modal from "react-bootstrap/Modal";
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+
 
 export const AddSong = () => {
+  const navigate = useNavigate();
+
   const [show, setShow] = useState(false);
+
+  const [userName, setUserName] = useState('');
+  const [song, setSong] = useState({'avg_rating': 0});
+  const [artist, setArtist] = useState({});
+  const [artists, setArtists] = useState([])
+
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  const handleChangeSong = (e) => {
+    song[e.target.name] = e.target.value;
+  }
+
+
+  const handleSubmitSong = (e) => {
+    e.preventDefault();
+    console.log('You have submitted', userName, song);
+    axios.post(
+    'http://127.0.0.1:8000/songs/create/', song )
+    .then(res => {
+      alert('success');
+    })
+  }
+
+  
+  const handleChangeArtist = (e) => {
+    artist[e.target.name] = e.target.value;
+  }
+
+
+  const handleSubmitArtist = (e) => {
+    e.preventDefault();
+    console.log('You have submitted', userName, artist);
+    axios.post(
+    'http://127.0.0.1:8000/artists/create/', artist )
+    .then(res => {
+      alert('success');
+      setShow(false);
+    })
+  }
+
+
+
+  useEffect(() => {
+    axios.get('http://127.0.0.1:8000/artists/list/')
+    .then(response => {
+      console.log(response.data);
+      setArtists(response.data);
+    })
+  }, [show]);
+
   return (
     <>
       <Header title="Spotify!" />
       <div className="container">
         <h3 className="my-3">Add Songs here</h3>
-        <Form className="my-5">
+        <Form className="my-5" onSubmit={handleSubmitSong} >
           <Form.Group as={Row} className="mb-3" controlId="formSongName">
             <Form.Label column sm="2">
               Song Name
             </Form.Label>
             <Col sm="10">
-              <Form.Control type="text" placeholder="Enter Song Name" />
+              <Form.Control type="text" placeholder="Enter Song Name" name="name" onChange={handleChangeSong} />
             </Col>
           </Form.Group>
 
@@ -33,24 +88,21 @@ export const AddSong = () => {
               Date of Release
             </Form.Label>
             <Col sm="10">
-              <Form.Control type="text" placeholder="Enter Date of Release" />
+              <Form.Control type="date" placeholder="Enter Date of Release" name="date_of_release" onChange={handleChangeSong} />
             </Col>
           </Form.Group>
 
           <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
             <Form.Label column sm="2">
-              Artist
+              {song.artist}
             </Form.Label>
             <Col sm="5">
-              <DropdownButton
-                id="dropdown-basic-button"
-                variant="secondary"
-                title="Search Artist"
-              >
-                <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-                <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-                <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-              </DropdownButton>
+            <Form.Control as="select" value={song.artist} aria-label="Default select example" name="artist" onChange={handleChangeSong}>
+              <option>Open this select menu</option>
+              {artists.map((artist) => {
+                  return <option value={artist.id}>{artist.artist_name}</option>;
+              })}
+            </Form.Control>
             </Col>
             <Col sm="5">
               <Button variant="outline-secondary" onClick={handleShow}>
@@ -61,7 +113,7 @@ export const AddSong = () => {
                   <Modal.Title>Add Artist</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                  <Form>
+                  <Form onSubmit={handleSubmitArtist}>
                     <Form.Group
                       className="mb-3"
                       controlId="exampleForm.ControlInput1"
@@ -70,6 +122,8 @@ export const AddSong = () => {
                       <Form.Control
                         type="text"
                         placeholder="Enter Artist Name"
+                        name="artist_name"
+                        onChange={handleChangeArtist}
                         autoFocus
                       />
                     </Form.Group>
@@ -81,6 +135,8 @@ export const AddSong = () => {
                       <Form.Control
                         type="date"
                         placeholder="Enter Date of Birth"
+                        name="artist_dob"
+                        onChange={handleChangeArtist}
                       />
                     </Form.Group>
                     <Form.Group
@@ -88,7 +144,7 @@ export const AddSong = () => {
                       controlId="exampleForm.ControlTextarea1"
                     >
                       <Form.Label>Bio</Form.Label>
-                      <Form.Control as="textarea" rows={3} />
+                      <Form.Control as="textarea" rows={3} onChange={handleChangeArtist} name="artist_bio" />
                     </Form.Group>
                   </Form>
                 </Modal.Body>
@@ -96,7 +152,7 @@ export const AddSong = () => {
                   <Button variant="secondary" onClick={handleClose}>
                     Close
                   </Button>
-                  <Button variant="primary" onClick={handleClose}>
+                  <Button variant="primary" onClick={handleSubmitArtist}>
                     Save Changes
                   </Button>
                 </Modal.Footer>
@@ -104,20 +160,20 @@ export const AddSong = () => {
             </Col>
           </Form.Group>
 
-          <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
+          {/* <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
             <Form.Label column sm="2">
               Cover Image
             </Form.Label>
             <Col sm="10">
               <Form.Control type="file" />
             </Col>
-          </Form.Group>
+          </Form.Group> */}
 
           <Col sm="12" className="text-center">
             <Button variant="secondary" type="submit" className="my-3">
               Cancel
             </Button>
-            <Button variant="success" type="submit" className="my-3 mx-2">
+            <Button variant="success" type="submit" className="my-3 mx-2" onClick = {handleSubmitSong}>
               Submit
             </Button>
           </Col>
